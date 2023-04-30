@@ -293,5 +293,4 @@ def send_final_notification(**kwargs):
         response = "END Your request has been cancelled\n"
         response += "Goodbye!!!\n"
         pending.update(delivery_bus_stop=text, stage='complete', status='cancelled')
-    # SEND AUTOMATED SMS OR SOMETHING HERE!
     return response
