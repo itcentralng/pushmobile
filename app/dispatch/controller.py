@@ -274,7 +274,7 @@ def preview_order(**kwargs):
     if not pending.delivery_phone_number:
         return select_delivery_phone_number(**kwargs)
     pending.update(delivery_bus_stop=text, stage='preview_order', status='pending')
-    response = f"CON Dear {kwargs['customer'] or 'customer'}\n"
+    response = f"CON Dear {kwargs['customer'].name or 'customer'}\n"
     response += f"We have received your pickup request from {pending.pickup} to {pending.delivery}\n"
     response += "Press 1 to continue or 2 to cancel.\n"
     Dispatch.create_or_update(kwargs['session_id'], 'complete')
