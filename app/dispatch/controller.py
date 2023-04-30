@@ -39,6 +39,7 @@ def start(**kwargs):
             return globals()[pending.stage](selection=kwargs['selection'], session_id=kwargs['session_id'], customer=kwargs['customer'])
         elif text == '2':
             pending.update(status='cancelled')
+            return start(**kwargs)
         else:
             response = f"CON You already have a pending order, do you want to continue?.\n"
             response += "1. Yes\n"
@@ -149,10 +150,10 @@ def select_pickup_address(**kwargs):
 def select_pickup_bus_stop(**kwargs):
     text = kwargs['selection'].split('*')[-1]
     pending = Delivery.get_pending_by_customer_id(kwargs['customer'].id)
-    kwargs['customer'].update(address=text)
-    pending.update(pickup=kwargs['customer'].address, stage='select_item_category')
-    if not kwargs['customer'].bus_stop:
+    if not text.isdigit():
+        kwargs['customer'].update(address=text)
         pending.update(pickup=kwargs['customer'].address, stage='select_item_category')
+    if not kwargs['customer'].bus_stop:
         response = 'CON Please enter your nearest bus stop or junction:\n'
         Dispatch.create_or_update(kwargs['session_id'], 'select_item_category')
         return response
@@ -191,8 +192,9 @@ def select_item_category(**kwargs):
     pending = Delivery.get_pending_by_customer_id(kwargs['customer'].id)
     if not pending.pickup:
         return select_pickup_address(**kwargs)
-    kwargs['customer'].update(bus_stop=text)
-    pending.update(pickup_bus_stop=kwargs['customer'].bus_stop, stage='select_item_category')
+    if not text.isdigit():
+        kwargs['customer'].update(bus_stop=text)
+        pending.update(pickup_bus_stop=kwargs['customer'].bus_stop, stage='select_item_type')
     response = 'CON Select category of item:\n'
     for c in categories:
         response += f'{c}. {categories.get(c)}\n'
