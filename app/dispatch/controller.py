@@ -276,7 +276,6 @@ def preview_order(**kwargs):
     pending.update(delivery_bus_stop=text, stage='preview_order', status='pending')
     response = f"CON Dear {kwargs['customer'] or 'customer'}\n"
     response += f"We have received your pickup request from {pending.pickup} to {pending.delivery}\n"
-    response += f"Estimated delivery charge is: NGN{1500}\n"
     response += "Press 1 to continue or 2 to cancel.\n"
     Dispatch.create_or_update(kwargs['session_id'], 'complete')
     Dispatch.create_or_update(kwargs['session_id'], 'send_final_notification')
