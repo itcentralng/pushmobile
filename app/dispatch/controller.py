@@ -28,7 +28,7 @@ def handle_dispatch():
 # @auth_required()
 def handle_events():
     form = request.form
-    print(form)
+    # print(form)
     return "Event Received"
 
 def start(**kwargs):
