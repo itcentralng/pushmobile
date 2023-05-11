@@ -53,7 +53,7 @@ class Delivery(db.Model):
         db.session.commit()
 
     def set_fees(self, amount):
-        self.amount = amount
+        self.fees = amount
         # send an sms to the User with a USSD code to dail for payment
         payment_reference = send_payment_message(Customer.get_by_id(self.customer_id), self, amount)
         self.payment_reference = payment_reference
