@@ -33,4 +33,4 @@ from app.delivery.controller import bp as delivery_bp
 app.register_blueprint(delivery_bp)
 
 # Error handlers
-from .error_handlers import *
+# from .error_handlers import *

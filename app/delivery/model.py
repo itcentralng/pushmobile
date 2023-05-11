@@ -15,6 +15,7 @@ class Delivery(db.Model):
     delivery_bus_stop = db.Column(db.String)
     status = db.Column(db.String, default='pending')
     stage = db.Column(db.String)
+    previous = db.Column(db.String)
     created_at = db.Column(db.DateTime, default=db.func.now())
     updated_at = db.Column(db.DateTime, default=db.func.now())
     is_deleted = db.Column(db.Boolean, default=False)
@@ -23,7 +24,7 @@ class Delivery(db.Model):
         db.session.add(self)
         db.session.commit()
 
-    def update(self, item=None, item_category=None, item_type=None, unit=None, vehicle=None, pickup=None, pickup_bus_stop=None, delivery=None, delivery_phone_number=None, delivery_bus_stop=None, status=None, stage=None):
+    def update(self, item=None, item_category=None, item_type=None, unit=None, vehicle=None, pickup=None, pickup_bus_stop=None, delivery=None, delivery_phone_number=None, delivery_bus_stop=None, status=None, stage=None, previous=None):
         self.item = item or self.item
         self.item_category = item_category or self.item_category
         self.item_type = item_type or self.item_type
@@ -36,6 +37,7 @@ class Delivery(db.Model):
         self.delivery_bus_stop = delivery_bus_stop or self.delivery_bus_stop
         self.status = status or self.status
         self.stage = stage or self.stage
+        self.previous = previous or self.previous
         self.updated_at = db.func.now()
         db.session.commit()
     
@@ -53,7 +55,9 @@ class Delivery(db.Model):
         return cls.query.filter_by(is_deleted=False).all()
     
     @classmethod
-    def create(cls, customer_id=None, item=None, item_category=None, item_type=None, unit=None, vehicle=None, pickup=None, pickup_bus_stop=None, delivery=None, delivery_phone_number=None, delivery_bus_stop=None, status=None, stage=None):
-        delivery = cls(customer_id=customer_id, item=item, item_category=item_category, item_type=item_type, unit=unit, vehicle=vehicle, pickup=pickup, pickup_bus_stop=pickup_bus_stop, delivery=delivery, delivery_phone_number=delivery_phone_number, delivery_bus_stop=delivery_bus_stop, status=status, stage=stage)
-        delivery.save()
-        return delivery
+    def create(cls, customer_id=None, item=None, item_category=None, item_type=None, unit=None, vehicle=None, pickup=None, pickup_bus_stop=None, delivery=None, delivery_phone_number=None, delivery_bus_stop=None, status=None, stage=None, previous=None):
+        pending = cls.get_pending_by_customer_id(customer_id)
+        if not pending:
+            delivery = cls(customer_id=customer_id, item=item, item_category=item_category, item_type=item_type, unit=unit, vehicle=vehicle, pickup=pickup, pickup_bus_stop=pickup_bus_stop, delivery=delivery, delivery_phone_number=delivery_phone_number, delivery_bus_stop=delivery_bus_stop, status=status, stage=stage, previous=previous)
+            delivery.save()
+            return delivery

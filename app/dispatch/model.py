@@ -4,6 +4,7 @@ class Dispatch(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     session_id = db.Column(db.String)
     stage = db.Column(db.String)
+    previous = db.Column(db.String)
     created_at = db.Column(db.DateTime, default=db.func.now())
     updated_at = db.Column(db.DateTime, default=db.func.now())
     is_deleted = db.Column(db.Boolean, default=False)
@@ -12,8 +13,9 @@ class Dispatch(db.Model):
         db.session.add(self)
         db.session.commit()
 
-    def update(self, stage):
-        self.stage = stage
+    def update(self, stage=None, previous=None):
+        self.stage = stage or self.stage
+        self.previous = previous or self.previous
         self.updated_at = db.func.now()
         db.session.commit()
     
@@ -35,10 +37,10 @@ class Dispatch(db.Model):
         return cls.query.filter_by(is_deleted=False).all()
     
     @classmethod
-    def create_or_update(cls, session_id, stage):
+    def create_or_update(cls, session_id, stage, previous=None):
         dispatch = cls.get_by_session_id(session_id)
         if not dispatch:
             dispatch = cls(session_id=session_id)
             dispatch.save()
-        dispatch.update(stage)
+        dispatch.update(stage, previous)
         return dispatch
