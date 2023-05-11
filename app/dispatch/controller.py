@@ -57,9 +57,23 @@ def start(**kwargs):
         response += "6. View Profile\n"
     return response
 
+def list_of_recipients(customer_id, index=None):
+    try:
+        recipients = Recipient.get_by_customer_id(customer_id)
+        if index:
+            return recipients[int(index)-1]
+        text = ""
+        for index, recipient in enumerate(recipients):
+            text += f"{index+1}. {recipient.name} - {recipient.phone} - {recipient.address} - {recipient.bus_stop}\n\n"
+        return text
+    except:
+        pass
+
 def select_service(**kwargs):
     text = kwargs['selection'].split('*')[-1]
     if text == '1':
+        if not list_of_recipients(kwargs['customer'].id):
+            return "END You must add at least one recipient to begin"
         Delivery.create(kwargs['customer'].id, stage='select_name', previous='start')
         Dispatch.create_or_update(kwargs['session_id'], 'select_name', 'start')
     elif text == '2':
@@ -125,18 +139,6 @@ def do_add_recipient_bus_stop(**kwargs):
     recipient.update(bus_stop=bus_stop)
     Dispatch.create_or_update(kwargs['session_id'], 'view_recipients', 'start')
     return view_recipients(**kwargs)
-
-def list_of_recipients(customer_id, index=None):
-    try:
-        recipients = Recipient.get_by_customer_id(customer_id)
-        if index:
-            return recipients[int(index)-1]
-        text = ""
-        for index, recipient in enumerate(recipients):
-            text += f"{index+1}. {recipient.name} - {recipient.phone} - {recipient.address} - {recipient.bus_stop}\n\n"
-        return text
-    except:
-        pass
 
 def delete_recipient(**kwargs):
     response = "CON Select Recipient to delete:\n"
