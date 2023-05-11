@@ -186,19 +186,19 @@ def select_profile_option(**kwargs):
 
 def update_customer_name(**kwargs):
     response = "CON 99. Back\n"
-    response = "Please enter your new name:\n"
+    response += "Please enter your new name:\n"
     Dispatch.create_or_update(kwargs['session_id'], 'do_update_customer_name', 'start')
     return response
 
 def update_customer_address(**kwargs):
     response = "CON 99. Back\n"
-    response = "Please enter your new address:\n"
+    response += "Please enter your new address:\n"
     Dispatch.create_or_update(kwargs['session_id'], 'do_update_customer_address', 'start')
     return response
 
 def update_customer_bus_stop(**kwargs):
     response = "CON 99. Back\n"
-    response = "Please enter your new bus stop:\n"
+    response += "Please enter your new bus stop:\n"
     Dispatch.create_or_update(kwargs['session_id'], 'do_update_customer_bus_stop', 'start')
     return response
 
@@ -223,7 +223,7 @@ def do_update_customer_bus_stop(**kwargs):
 def select_name(**kwargs):
     if not kwargs['customer'].name:
         response = "CON 99. Back\n"
-        response = 'Please enter your name:\n'
+        response += 'Please enter your name:\n'
         Dispatch.create_or_update(kwargs['session_id'], 'select_pickup_address', 'start')
         return response
     else:
