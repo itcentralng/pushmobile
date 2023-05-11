@@ -52,8 +52,9 @@ def start(**kwargs):
         response += "1. Book Pickup & Delivery\n"
         response += "2. Add Recipient\n"
         response += "3. View Recipients\n"
-        response += "4. Update Profile\n"
-        response += "5. View Profile\n"
+        response += "4. Delete Recipient\n"
+        response += "5. Update Profile\n"
+        response += "6. View Profile\n"
     return response
 
 def select_service(**kwargs):
@@ -68,9 +69,12 @@ def select_service(**kwargs):
         Dispatch.create_or_update(kwargs['session_id'], 'view_recipients', 'start')
         return view_recipients(**kwargs)
     elif text == '4':
+        Dispatch.create_or_update(kwargs['session_id'], 'delete_recipient', 'start')
+        return delete_recipient(**kwargs)
+    elif text == '5':
         Dispatch.create_or_update(kwargs['session_id'], 'update_profile', 'start')
         return update_profile(**kwargs)
-    elif text == '5':
+    elif text == '6':
         Dispatch.create_or_update(kwargs['session_id'], 'view_profile', 'start')
         return view_profile(**kwargs)
     return select_name(**kwargs)
@@ -133,6 +137,19 @@ def list_of_recipients(customer_id, index=None):
         return text
     except:
         pass
+
+def delete_recipient(**kwargs):
+    response = "CON Select Recipient to delete:\n"
+    response += list_of_recipients(kwargs['customer'].id)
+    Dispatch.create_or_update(kwargs['session_id'], 'do_delete_recipient', 'start')
+    return response
+
+def do_delete_recipient(**kwargs):
+    selected_recipient = kwargs['selection'].split('*')[-1]
+    recipient = list_of_recipients(kwargs['customer'].id, selected_recipient)
+    recipient.delete()
+    response = "END Recipient deleted successfully!"
+    return response
 
 def view_recipients(**kwargs):
     response = "END "
