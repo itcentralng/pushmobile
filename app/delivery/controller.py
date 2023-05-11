@@ -26,7 +26,7 @@ def update_delivery(id):
     delivery = Delivery.get_by_id(id)
     if delivery is None:
         return {'message': 'Delivery not found'}, 404
-    delivery.update()
+    delivery.update(**request.json)
     return DeliverySchema().dump(delivery), 200
 
 @bp.post('/delivery/payment/<int:id>')
