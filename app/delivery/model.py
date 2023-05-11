@@ -1,3 +1,4 @@
+from sqlalchemy import desc, or_
 from app import db
 
 class Delivery(db.Model):
@@ -61,3 +62,55 @@ class Delivery(db.Model):
             delivery = cls(customer_id=customer_id, item=item, item_category=item_category, item_type=item_type, unit=unit, vehicle=vehicle, pickup=pickup, pickup_bus_stop=pickup_bus_stop, delivery=delivery, delivery_phone_number=delivery_phone_number, delivery_bus_stop=delivery_bus_stop, status=status, stage=stage, previous=previous)
             delivery.save()
             return delivery
+        
+class Recipient(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'))
+    name = db.Column(db.String)
+    phone = db.Column(db.String)
+    address = db.Column(db.String)
+    bus_stop = db.Column(db.String)
+    created_at = db.Column(db.DateTime, default=db.func.now())
+    updated_at = db.Column(db.DateTime, default=db.func.now())
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self, name=None, phone=None, address=None, bus_stop=None):
+        self.name = name or self.name
+        self.phone = phone or self.phone
+        self.address = address or self.address
+        self.bus_stop = bus_stop or self.bus_stop
+        db.session.commit()
+    
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    @classmethod
+    def get_by_customer_id(cls, customer_id):
+        return cls.query.filter_by(customer_id=customer_id).all()
+    
+    @classmethod
+    def get_incomplete_by_customer_id(cls, customer_id):
+        return cls.query.filter(cls.customer_id==customer_id, or_(cls.name==None, cls.address==None, cls.phone==None, cls.bus_stop==None)).first()
+    
+    @classmethod
+    def get_last_by_customer_id(cls, customer_id):
+        return cls.query.filter_by(customer_id=customer_id).order_by(desc(cls.id)).first()
+    
+    @classmethod
+    def create(cls, customer_id=None, name=None, phone=None, address=None, bus_stop=None):
+        recipients = cls.get_by_customer_id(customer_id)
+        incomplete = cls.get_incomplete_by_customer_id(customer_id)
+        if incomplete:
+            incomplete.update(name, phone, address, bus_stop)
+            return incomplete
+        elif len(recipients) < 10:
+            recipient = cls(customer_id=customer_id, name=name, phone=phone, address=address, bus_stop=bus_stop)
+            recipient.save()
+            return recipient
+        else:
+            recipients[-1].update(name, phone, address, bus_stop)
+            return recipients[-1]
