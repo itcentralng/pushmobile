@@ -1,5 +1,7 @@
 from sqlalchemy import desc, or_
 from app import db
+from app.customer.model import Customer
+from helpers.sms import send_payment_message
 
 class Delivery(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -15,6 +17,9 @@ class Delivery(db.Model):
     vehicle = db.Column(db.String)
     delivery_bus_stop = db.Column(db.String)
     status = db.Column(db.String, default='pending')
+    fees = db.Column(db.Float, default=0.0)
+    payment_status = db.Column(db.String, default='pending')
+    payment_reference = db.Column(db.String)
     stage = db.Column(db.String)
     previous = db.Column(db.String)
     created_at = db.Column(db.DateTime, default=db.func.now())
@@ -46,6 +51,25 @@ class Delivery(db.Model):
         self.is_deleted = True
         self.updated_at = db.func.now()
         db.session.commit()
+
+    def set_fees(self, amount):
+        self.amount = amount
+        # send an sms to the User with a USSD code to dail for payment
+        payment_reference = send_payment_message(Customer.get_by_id(self.customer_id), self, amount)
+        self.payment_reference = payment_reference
+        db.session.commit()
+    
+    def validate_payment(self):
+        self.payment_status = 'paid'
+        db.session.commit()
+    
+    @classmethod
+    def get_by_id(cls, id):
+        return cls.query.filter_by(id=id).first()
+    
+    @classmethod
+    def get_by_payment_reference(cls, reference):
+        return cls.query.filter_by(payment_reference=reference).first()
 
     @classmethod
     def get_pending_by_customer_id(cls, customer_id):

@@ -7,13 +7,13 @@ from app.customer.schema import *
 bp = Blueprint('customer', __name__)
 
 @bp.post('/customer')
-@auth_required()
+@auth_required('admin')
 def create_customer():
     customer = Customer.create()
     return CustomerSchema().dump(customer), 201
 
 @bp.get('/customer/<int:id>')
-@auth_required()
+@auth_required('admin')
 def get_customer(id):
     customer = Customer.get_by_id(id)
     if customer is None:
@@ -21,7 +21,7 @@ def get_customer(id):
     return CustomerSchema().dump(customer), 200
 
 @bp.patch('/customer/<int:id>')
-@auth_required()
+@auth_required('admin')
 def update_customer(id):
     customer = Customer.get_by_id(id)
     if customer is None:
@@ -30,7 +30,7 @@ def update_customer(id):
     return CustomerSchema().dump(customer), 200
 
 @bp.delete('/customer/<int:id>')
-@auth_required()
+@auth_required('admin')
 def delete_customer(id):
     customer = Customer.get_by_id(id)
     if customer is None:
@@ -39,7 +39,7 @@ def delete_customer(id):
     return {'message': 'Customer deleted successfully'}, 200
 
 @bp.get('/customers')
-@auth_required()
+@auth_required('admin')
 def get_customers():
     customers = Customer.get_all()
     return CustomerSchema(many=True).dump(customers), 200
