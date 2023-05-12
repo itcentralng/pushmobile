@@ -1,4 +1,5 @@
 from app import db
+from helpers.sms import send_welcome_message
 
 class Customer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -42,4 +43,5 @@ class Customer(db.Model):
     def create(cls, phone_number, name='', address='', bus_stop=''):
         customer = cls(phone_number=phone_number, name=name, address=address, bus_stop=bus_stop)
         customer.save()
+        send_welcome_message(customer)
         return customer

@@ -46,3 +46,8 @@ def send_success_message(customer, delivery):
     sms = SMS()
     message = f"Hello {customer.name.split()[0]}, we've recieved your payment of {delivery.fees} for order with ID: {delivery.id}.\nOur agent is on the way."
     sms.send(customer.phone_number, message)
+
+def send_welcome_message(customer):
+    sms = SMS()
+    message = f"Hello there, Welcome to PushMobile. For subsequent usage here's our USSD Code: {os.environ.get('USSD')}"
+    sms.send(customer.phone_number, message)
