@@ -6,6 +6,9 @@ from helpers.sms import send_payment_message, send_success_message
 class Delivery(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'))
+    pickup_name = db.Column(db.String)
+    pickup_phone_number = db.Column(db.String)
+    delivery_name = db.Column(db.String)
     item = db.Column(db.String)
     item_category = db.Column(db.String)
     item_type = db.Column(db.String)
@@ -31,7 +34,10 @@ class Delivery(db.Model):
         db.session.add(self)
         db.session.commit()
 
-    def update(self, item=None, item_category=None, item_type=None, unit=None, vehicle=None, pickup=None, pickup_bus_stop=None, delivery=None, delivery_phone_number=None, delivery_bus_stop=None, payment_option=None, status=None, stage=None, previous=None):
+    def update(self, pickup_name=None, pickup_phone_number=None, delivery_name=None, item=None, item_category=None, item_type=None, unit=None, vehicle=None, pickup=None, pickup_bus_stop=None, delivery=None, delivery_phone_number=None, delivery_bus_stop=None, payment_option=None, status=None, stage=None, previous=None):
+        self.pickup_phone_number = pickup_phone_number or self.pickup_phone_number
+        self.pickup_name = pickup_name or self.pickup_name
+        self.delivery_name = delivery_name or self.delivery_name
         self.item = item or self.item
         self.item_category = item_category or self.item_category
         self.item_type = item_type or self.item_type
@@ -59,6 +65,7 @@ class Delivery(db.Model):
         # send an sms to the User with a USSD code to dail for payment
         payment_reference = send_payment_message(Customer.get_by_id(self.customer_id), self, amount)
         self.payment_reference = payment_reference
+        self.payment_status = 'invoice'
         db.session.commit()
         if self.payment_reference:
             return True
@@ -66,7 +73,7 @@ class Delivery(db.Model):
     
     def validate_payment(self):
         self.payment_status = 'paid'
-        self.status = 'success'
+        self.status = 'transit'
         send_success_message(Customer.get_by_id(self.customer_id), self)
         db.session.commit()
     
@@ -84,7 +91,7 @@ class Delivery(db.Model):
     
     @classmethod
     def get_all(cls):
-        return cls.query.filter_by(is_deleted=False).all()
+        return cls.query.filter_by(is_deleted=False).order_by(desc(cls.id)).all()
     
     @classmethod
     def create(cls, customer_id=None, item=None, item_category=None, item_type=None, unit=None, vehicle=None, pickup=None, pickup_bus_stop=None, delivery=None, delivery_phone_number=None, delivery_bus_stop=None, status=None, stage=None, previous=None):

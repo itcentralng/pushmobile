@@ -369,7 +369,7 @@ def select_payment_option(**kwargs):
         return select_recipient(**kwargs)
     if selected_recipient != '0':
         pending = Delivery.get_pending_by_customer_id(kwargs['customer'].id)
-        pending.update(delivery_phone_number=recipient.phone, delivery=recipient.address, delivery_bus_stop=recipient.bus_stop, stage='select_payment_option', status='pending', previous='select_recipient')
+        pending.update(pickup_name=kwargs['customer'].name, pickup_phone_number=kwargs['customer'].phone_number, delivery_name=recipient.name, delivery_phone_number=recipient.phone, delivery=recipient.address, delivery_bus_stop=recipient.bus_stop, stage='select_payment_option', status='pending', previous='select_recipient')
     if not pending.delivery or not pending.delivery_phone_number or not pending.delivery_bus_stop:
         return select_recipient(**kwargs)
     response = 'CON Select preferred Payment Option:\n'

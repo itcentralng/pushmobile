@@ -36,7 +36,7 @@ def request_delivery_payment(id):
     if delivery is None:
         return {'message': 'Delivery not found'}, 404
     amount = request.json.get('amount')
-    if delivery.set_fees(amount):
+    if delivery.set_fees(int(amount)):
         return {'message':'Payment notification sent to customer successfully!'}, 200
     return {'message':'There was an error sending payment notification to customer!'}, 400
 
