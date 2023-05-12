@@ -1,7 +1,7 @@
 from sqlalchemy import desc, or_
 from app import db
 from app.customer.model import Customer
-from helpers.sms import send_payment_message
+from helpers.sms import send_payment_message, send_success_message
 
 class Delivery(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -66,6 +66,8 @@ class Delivery(db.Model):
     
     def validate_payment(self):
         self.payment_status = 'paid'
+        self.status = 'success'
+        send_success_message(Customer.get_by_id(self.customer_id), self)
         db.session.commit()
     
     @classmethod

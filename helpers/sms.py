@@ -41,3 +41,8 @@ def send_payment_message(customer, delivery, amount):
         message = f"Hello {customer.name.split()[0]}, we are processing your order with ID:{delivery.id}.\n{ussd.get('data').get('display_text')}"
         sms.send(customer.phone_number, message)
         return ussd.get('data').get('reference')
+
+def send_success_message(customer, delivery):
+    sms = SMS()
+    message = f"Hello {customer.name.split()[0]}, we've recieved your payment of {delivery.fees} for order with ID: {delivery.id}.\nOur agent is on the way."
+    sms.send(customer.phone_number, message)
