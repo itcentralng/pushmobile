@@ -289,6 +289,14 @@ vehicles = {
     '99':'Back',
     }
 
+payment_options = {
+    '1':{'name':'GT Bank', 'code':'737'}, 
+    '2':{'name':'UBA', 'code':'919'}, 
+    '3':{'name':'Sterling Bank', 'code':'822'}, 
+    '4':{'name':'Zenith Bank', 'code':'966'}, 
+    '99':'Back',
+    }
+
 def select_item_category(**kwargs):
     text = kwargs['selection'].split('*')[-1]
     pending = Delivery.get_pending_by_customer_id(kwargs['customer'].id)
@@ -351,25 +359,40 @@ def select_recipient(**kwargs):
         pending.update(vehicle=vehicles[text], stage='select_recipient', previous='select_vehicle_type')
     response = "CON 99. Back\n"
     response += list_of_recipients(kwargs['customer'].id)
-    Dispatch.create_or_update(kwargs['session_id'], 'preview_order', previous='select_vehicle_type')
+    Dispatch.create_or_update(kwargs['session_id'], 'select_payment_option', previous='select_vehicle_type')
     return response
 
-def preview_order(**kwargs):
+def select_payment_option(**kwargs):
     selected_recipient = kwargs['selection'].split('*')[-1]
     recipient = list_of_recipients(kwargs['customer'].id, selected_recipient)
     if not recipient:
         return select_recipient(**kwargs)
-    pending = Delivery.get_pending_by_customer_id(kwargs['customer'].id)
-    pending.update(delivery_phone_number=recipient.phone, delivery=recipient.address, delivery_bus_stop=recipient.bus_stop, stage='preview_order', status='pending', previous='select_recipient')
+    if selected_recipient != '99':
+        pending = Delivery.get_pending_by_customer_id(kwargs['customer'].id)
+        pending.update(delivery_phone_number=recipient.phone, delivery=recipient.address, delivery_bus_stop=recipient.bus_stop, stage='select_payment_option', status='pending', previous='select_recipient')
     if not pending.delivery or not pending.delivery_phone_number or not pending.delivery_bus_stop:
         return select_recipient(**kwargs)
+    response = 'CON Select preferred Payment Option:\n'
+    for option in payment_options:
+        if option != '99':
+            response += f"{option}. {payment_options.get(option).get('name')}\n"
+        else:
+            response += f"{option}. {payment_options.get(option)}\n"
+    Dispatch.create_or_update(kwargs['session_id'], 'preview_order', previous='select_recipient')
+    return response
+
+def preview_order(**kwargs):
+    option = kwargs['selection'].split('*')[-1]
+    pending = Delivery.get_pending_by_customer_id(kwargs['customer'].id)
+    if option != '99':
+        pending.update(payment_option=payment_options[option].get('code'), stage='preview_order', previous='select_payment_option')
     response = f"CON Dear {kwargs['customer'].name or 'customer'}\n"
     response += f"We have received your pickup request from {pending.pickup} to {pending.delivery}\n"
     response += "Press:\n"
     response += "1. Continue\n"
     response += "2. Cancel\n"
     response += "99. Back.\n"
-    Dispatch.create_or_update(kwargs['session_id'], 'send_final_notification', previous='select_recipient')
+    Dispatch.create_or_update(kwargs['session_id'], 'send_final_notification', previous='select_payment_option')
     return response
 
 def send_final_notification(**kwargs):

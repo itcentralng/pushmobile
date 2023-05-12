@@ -41,6 +41,8 @@ def request_delivery_payment(id):
 
 @bp.post('/delivery/payment/validate')
 def validate_delivery_payment():
+    print('json', request.json)
+    print('data', request.data)
     reference = request.json.get('data').get('reference')
     delivery = Delivery.get_by_payment_reference(reference)
     if delivery is None:

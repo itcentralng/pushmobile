@@ -36,7 +36,7 @@ class SMS:
 
 def send_payment_message(customer, delivery, amount):
     sms = SMS()
-    ussd = generate_ussd_code(customer.name.split()[0], amount) #"*737*1*5555#"
+    ussd = generate_ussd_code(customer.name.split()[0], amount, delivery.payment_option) #"*737*1*5555#"
     message = f"Hello {customer.name.split()[0]}, we are processing your order with ID:{delivery.id}.\n{ussd.get('data').get('display_text')}"
     sms.send(customer.phone_number, message)
     return ussd.get('data').get('reference')

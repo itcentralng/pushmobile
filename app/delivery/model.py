@@ -20,6 +20,7 @@ class Delivery(db.Model):
     fees = db.Column(db.Float, default=0.0)
     payment_status = db.Column(db.String, default='pending')
     payment_reference = db.Column(db.String)
+    payment_option = db.Column(db.String)
     stage = db.Column(db.String)
     previous = db.Column(db.String)
     created_at = db.Column(db.DateTime, default=db.func.now())
@@ -30,7 +31,7 @@ class Delivery(db.Model):
         db.session.add(self)
         db.session.commit()
 
-    def update(self, item=None, item_category=None, item_type=None, unit=None, vehicle=None, pickup=None, pickup_bus_stop=None, delivery=None, delivery_phone_number=None, delivery_bus_stop=None, status=None, stage=None, previous=None):
+    def update(self, item=None, item_category=None, item_type=None, unit=None, vehicle=None, pickup=None, pickup_bus_stop=None, delivery=None, delivery_phone_number=None, delivery_bus_stop=None, payment_option=None, status=None, stage=None, previous=None):
         self.item = item or self.item
         self.item_category = item_category or self.item_category
         self.item_type = item_type or self.item_type
@@ -41,6 +42,7 @@ class Delivery(db.Model):
         self.delivery = delivery or self.delivery
         self.delivery_phone_number = delivery_phone_number or self.delivery_phone_number
         self.delivery_bus_stop = delivery_bus_stop or self.delivery_bus_stop
+        self.payment_option = payment_option or self.payment_option
         self.status = status or self.status
         self.stage = stage or self.stage
         self.previous = previous or self.previous
