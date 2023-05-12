@@ -60,6 +60,9 @@ class Delivery(db.Model):
         payment_reference = send_payment_message(Customer.get_by_id(self.customer_id), self, amount)
         self.payment_reference = payment_reference
         db.session.commit()
+        if self.payment_reference:
+            return True
+        return False
     
     def validate_payment(self):
         self.payment_status = 'paid'

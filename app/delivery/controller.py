@@ -36,13 +36,12 @@ def request_delivery_payment(id):
     if delivery is None:
         return {'message': 'Delivery not found'}, 404
     amount = request.json.get('amount')
-    delivery.set_fees(amount)
-    return DeliverySchema().dump(delivery), 200
+    if delivery.set_fees(amount):
+        return {'message':'Payment notification sent to customer successfully!'}, 200
+    return {'message':'There was an error sending payment notification to customer!'}, 400
 
 @bp.post('/delivery/payment/validate')
 def validate_delivery_payment():
-    print('json', request.json)
-    print('data', request.data)
     reference = request.json.get('data').get('reference')
     delivery = Delivery.get_by_payment_reference(reference)
     if delivery is None:
