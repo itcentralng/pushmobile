@@ -36,9 +36,17 @@ def request_delivery_payment(id):
     if delivery is None:
         return {'message': 'Delivery not found'}, 404
     amount = request.json.get('amount')
-    if delivery.set_fees(int(amount)):
+    ussd = request.json.get('ussd')
+    if delivery.set_fees(int(amount), ussd):
         return {'message':'Payment notification sent to customer successfully!'}, 200
-    return {'message':'There was an error sending payment notification to customer!'}, 400
+    payment_options = {
+    '1':{'name':'GT Bank', 'code':'737'}, 
+    '2':{'name':'UBA', 'code':'919'}, 
+    '3':{'name':'Sterling Bank', 'code':'822'}, 
+    '4':{'name':'Zenith Bank', 'code':'966'}, 
+    '0':'Back',
+    }
+    return {'message':'There was an error sending payment notification to customer!', 'payment_options':payment_options}, 400
 
 @bp.post('/delivery/payment/validate')
 def validate_delivery_payment():

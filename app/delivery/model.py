@@ -60,10 +60,10 @@ class Delivery(db.Model):
         self.updated_at = db.func.now()
         db.session.commit()
 
-    def set_fees(self, amount):
+    def set_fees(self, amount, ussd=None):
         self.fees = amount
         # send an sms to the User with a USSD code to dail for payment
-        payment_reference = send_payment_message(Customer.get_by_id(self.customer_id), self, amount)
+        payment_reference = send_payment_message(Customer.get_by_id(self.customer_id), self, amount, ussd)
         self.payment_reference = payment_reference
         self.payment_status = 'invoice'
         db.session.commit()
