@@ -14,7 +14,25 @@ Please follow the following steps to get started with this project.
 6. Run the application
 
 ## Content of your .env file:
-```DATABASE_URI=your-database-uri```
+```
+    DATABASE_URI=your-db-uri
+
+    CELERY_BROKER_URL=optional-redis-connection-string
+    result_backend=""
+
+    PAYSTACK_API=paystack-api-url
+    PAYSTACK_KEY=your-paystack-key
+
+    SECRET=any-random-string
+
+    MAIL_SERVER=optional-mail-server-for-sending-emails
+    MAIL_PORT=mail-server-port
+    MAIL_USERNAME=your-mail-user-name
+    MAIL_PASSWORD=your-mail-password
+    MAIL_USE_TLS=True-or-False
+    MAIL_USE_SSL=True-or-False
+    MAIL_DEFAULT_SENDER=default-email-to-send-with
+```
 
 ## Create a virtual environment
 ```python3 -m venv venv```
